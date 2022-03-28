@@ -1,4 +1,4 @@
-package spec.configuration;
+package jaxrs_jpa_eclipselink;
 
 import java.io.IOException;
 

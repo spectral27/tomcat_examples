@@ -1,4 +1,4 @@
-package spec.controller;
+package jaxrs_jpa_eclipselink;
 
 import java.util.List;
 
@@ -12,9 +12,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import spec.entity.Item;
-import spec.repository.ItemRepository;
-
 @Path("/items")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -25,6 +22,12 @@ public class ItemController {
 	@GET
 	public List<Item> selectAllItems() {
 		return itemRepository.selectAllItems();
+	}
+	
+	@GET
+	@Path("/{id}")
+	public Item selectItem(@PathParam("id") String id) {
+		return itemRepository.selectItem(id);
 	}
 	
 	@POST
