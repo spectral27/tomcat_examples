@@ -1,4 +1,4 @@
-package jaxrs_jdbc.configuration;
+package jaxrs_jdbc;
 
 import java.io.IOException;
 

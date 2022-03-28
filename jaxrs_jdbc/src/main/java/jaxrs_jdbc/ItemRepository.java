@@ -1,4 +1,4 @@
-package jaxrs_jdbc.repository;
+package jaxrs_jdbc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,20 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jaxrs_jdbc.connection.JdbcConnection;
-import jaxrs_jdbc.entity.Item;
-
-public class ItemRepository {	
+public class ItemRepository {
 
 	public List<Item> selectAllItems() {
 		try (Connection connection = JdbcConnection.get()) {
 			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery("select * from items order by value");
+			ResultSet resultSet = statement.executeQuery("select * from items");
 			List<Item> items = new ArrayList<Item>();
 			while (resultSet.next()) {
 				Item item = new Item();
 				item.setId(resultSet.getString(1));
-				item.setValue(resultSet.getString(2));
+				item.setContent(resultSet.getString(2));
+				item.setOrigin(resultSet.getString(3));
 				items.add(item);
 			}
 			return items;
@@ -32,12 +30,30 @@ public class ItemRepository {
 		}
 	}
 
+	public Item selectItem(String id) {
+		try (Connection connection = JdbcConnection.get()) {
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery("select * from items where id = \"" + id + "\"");
+			Item item = new Item();
+			if (resultSet.next()) {
+				item.setId(resultSet.getString(1));
+				item.setContent(resultSet.getString(2));
+				item.setOrigin(resultSet.getString(3));
+			}
+			return item;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public int insertItem(Item item) {
 		try (Connection connection = JdbcConnection.get()) {
 			PreparedStatement preparedStatement = 
-					connection.prepareStatement("insert into items values (?, ?)");
-			preparedStatement.setString(1, UUID.randomUUID().toString().replace("-", "").substring(0, 16));
-			preparedStatement.setString(2, item.getValue());
+					connection.prepareStatement("insert into items values (?, ?, ?)");
+			preparedStatement.setString(1, UUID.randomUUID().toString());
+			preparedStatement.setString(2, item.getContent());
+			preparedStatement.setString(3, "jaxrs_jdbc");
 			preparedStatement.executeUpdate();
 			return 1;
 		} catch (SQLException e) {
@@ -48,9 +64,9 @@ public class ItemRepository {
 
 	public int updateItem(String id, Item item) {
 		try (Connection connection = JdbcConnection.get()) {
-			PreparedStatement preparedStatement = 
-					connection.prepareStatement("update items set value = ? where id = ?");
-			preparedStatement.setString(1, item.getValue());
+			PreparedStatement preparedStatement = connection
+					.prepareStatement("update items set content = ? where id = ?");
+			preparedStatement.setString(1, item.getContent());
 			preparedStatement.setString(2, id);
 			preparedStatement.executeUpdate();
 			return 1;
@@ -62,8 +78,7 @@ public class ItemRepository {
 
 	public int deleteItem(String id) {
 		try (Connection connection = JdbcConnection.get()) {
-			PreparedStatement preparedStatement = 
-					connection.prepareStatement("delete from items where id = ?");
+			PreparedStatement preparedStatement = connection.prepareStatement("delete from items where id = ?");
 			preparedStatement.setString(1, id);
 			preparedStatement.executeUpdate();
 			connection.close();
