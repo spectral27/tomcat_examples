@@ -1,4 +1,4 @@
-package spec.configuration;
+package jaxrs_jpa_hibernate;
 
 import java.io.IOException;
 
