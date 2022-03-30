@@ -6,8 +6,6 @@
 	<artifactId>jaxrs_hibernate</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>jaxrs_hibernate Maven Webapp</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -50,7 +48,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

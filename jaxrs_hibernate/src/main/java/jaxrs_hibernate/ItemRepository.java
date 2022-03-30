@@ -1,4 +1,4 @@
-package spec.repository;
+package jaxrs_hibernate;
 
 import java.util.List;
 import java.util.UUID;
@@ -9,26 +9,31 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-import spec.entity.Item;
-
 public class ItemRepository {
 	
-	private StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
-			.configure()
-			.build();
-	private SessionFactory sessionFactory = new MetadataSources(registry)
-			.buildMetadata()
-			.buildSessionFactory();
+	private StandardServiceRegistry registry;
+	private SessionFactory sessionFactory;
+	
+	{
+		registry = new StandardServiceRegistryBuilder().configure().build();
+		sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+	}
 	
 	public List<Item> selectAllItems() {
-		String query = "select i from Item i order by i.value";
 		try (Session session = sessionFactory.openSession()) {
-			return session.createQuery(query, Item.class).list();
+			return session.createQuery("select i from Item i", Item.class).list();
+		}
+	}
+	
+	public Item selectItem(String id) {
+		try (Session session = sessionFactory.openSession()) {
+			return session.find(Item.class, id);
 		}
 	}
 	
 	public int insertItem(Item item) {
-		item.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 16));
+		item.setId(UUID.randomUUID().toString());
+		item.setOrigin("hb");
 		try (Session session = sessionFactory.openSession()) {
 			session.beginTransaction();
 			session.save(item);
@@ -38,10 +43,13 @@ public class ItemRepository {
 	}
 	
 	public int updateItem(String id, Item item) {
-		item.setId(id);
 		try (Session session = sessionFactory.openSession()) {
+			Item i = session.find(Item.class, id);
+			
+			i.setContent(item.getContent());
+			
 			session.beginTransaction();
-			session.update(item);
+			session.update(i);
 			session.getTransaction().commit();
 		}
 		return 1;
@@ -49,8 +57,10 @@ public class ItemRepository {
 	
 	public int deleteItem(String id) {
 		try (Session session = sessionFactory.openSession()) {
+			Item i = session.find(Item.class, id);
+			
 			session.beginTransaction();
-			session.delete(session.find(Item.class, id));
+			session.delete(i);
 			session.getTransaction().commit();
 		}
 		return 1;
